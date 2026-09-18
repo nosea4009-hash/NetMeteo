@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>:: ArgeClima.net :: Red Nacional de Estaciones Meteorologicas ::</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --sky:#4a76b8;
+    --sky-dark:#1b3a63;
+    --panel:#d7e4f5;
+    --panel-dark:#a9c2e0;
+    --gold:#ffcc00;
+    --hot:#cc2200;
+    --cold:#0055aa;
+    --link:#0033cc;
+    --visited:#660099;
+    --bg-tile:#eef3fb;
+    --live:#1e9e3f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--bg-tile);
+    background-image:
+      radial-gradient(circle at 10px 10px, rgba(74,118,184,0.08) 2px, transparent 2px);
+    background-size:24px 24px;
+    font-family:Verdana, Geneva, Arial, sans-serif;
+    font-size:12px;
+    color:#111;
+  }
+  a{color:var(--link);}
+  a:visited{color:var(--visited);}
+  a:hover{color:var(--hot);}
+
+  #page{
+    max-width:960px;
+    margin:10px auto;
+    background:#ffffff;
+    border:3px double var(--sky-dark);
+    padding:0;
+  }
+
+  #banner{
+    background:linear-gradient(180deg, var(--sky) 0%, var(--sky-dark) 100%);
+    padding:10px 14px;
+    color:#fff;
+    text-align:center;
+    border-bottom:4px solid var(--gold);
+  }
+  #banner h1{
+    margin:0;
+    font-family:"Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
+    font-size:30px;
+    letter-spacing:1px;
+    text-shadow:2px 2px 0 #000, 0 0 10px #ffdd55;
+  }
+  #banner h1 .accent{color:var(--gold);}
+  #banner .tagline{
+    font-size:12px;
+    font-style:italic;
+    margin-top:2px;
+  }
+  marquee{
+    display:block;
+    background:#000;
+    color:#0f0;
+    font-family:"Courier New", monospace;
+    font-size:13px;
+    padding:4px 0;
+    border-top:1px solid #333;
+    border-bottom:1px solid #333;
+  }
+
+  #notice{
+    background:#fff8d6;
+    border:2px dashed #c9a400;
+    margin:10px;
+    padding:8px 10px;
+    font-size:11px;
+    line-height:1.5;
+  }
+  #notice b{color:#7a4b00;}
+
+  #statusBar{
+    margin:10px;
+    padding:6px 10px;
+    font-size:11px;
+    font-weight:bold;
+    border:2px solid #333;
+  }
+  #statusBar.live{background:#e4f7e8; color:var(--live); border-color:var(--live);}
+  #statusBar.demo{background:#fdeeee; color:var(--hot); border-color:var(--hot);}
+  #statusBar.loading{background:#eef3fb; color:var(--sky-dark);}
+
+  #navbar{
+    background:var(--panel-dark);
+    padding:6px 10px;
+    border-bottom:2px solid var(--sky-dark);
+    font-weight:bold;
+  }
+  #navbar span{margin-right:4px;}
+  #navbar a{margin:0 6px; text-decoration:none;}
+  #navbar a:hover{text-decoration:underline;}
+
+  #content{display:flex; flex-wrap:wrap;}
+  #sidebar{
+    width:190px;
+    background:var(--panel);
+    border-right:2px solid var(--sky-dark);
+    padding:8px;
+    flex-shrink:0;
+  }
+  #main{flex:1; min-width:280px; padding:10px 14px;}
+
+  .box{border:2px solid var(--sky-dark); margin-bottom:12px; background:#fff;}
+  .box h3{
+    margin:0; background:var(--sky-dark); color:#fff;
+    padding:4px 8px; font-size:12px; font-family:"Trebuchet MS", sans-serif;
+  }
+  .box .inner{padding:6px 8px;}
+
+  #counter{
+    text-align:center; background:#000; color:#33ff33;
+    font-family:"Courier New", monospace; font-size:18px; letter-spacing:3px;
+    padding:6px; border:2px inset #666; margin-top:6px;
+  }
+  #counter small{display:block;color:#0f0;font-size:9px;letter-spacing:1px;}
+
+  .badge-row{text-align:center; margin-top:8px;}
+  .badge{display:inline-block; border:1px solid #888; background:#eee; font-size:9px; padding:3px 6px; margin:2px;}
+  .blink{animation:blinker 1s step-start infinite; font-weight:bold;}
+  @keyframes blinker{50%{opacity:0;}}
+  #liveBadge.on{color:var(--live); border-color:var(--live);}
+  #liveBadge.off{color:var(--hot); border-color:var(--hot);}
+
+  h2.section-title{
+    font-family:"Trebuchet MS", sans-serif; background:var(--gold); color:#000;
+    border:2px solid #000; padding:4px 8px; margin:14px 0 8px 0; font-size:15px;
+  }
+
+  #tabs{margin:8px 0 0 0;}
+  .tabbtn{
+    font-family:Verdana, sans-serif; font-size:12px; font-weight:bold;
+    padding:6px 12px; border:2px solid var(--sky-dark); border-bottom:none;
+    background:var(--panel-dark); cursor:pointer; margin-right:2px;
+  }
+  .tabbtn.active{background:#fff; color:var(--hot);}
+  .tabpanel{display:none; border:2px solid var(--sky-dark); padding:8px; background:#fff;}
+  .tabpanel.active{display:block;}
+
+  table.data{border-collapse:collapse; width:100%; font-size:11px;}
+  table.data caption{caption-side:top; text-align:left; font-weight:bold; padding-bottom:4px;}
+  table.data th{
+    background:var(--sky-dark); color:#fff; padding:4px 6px; border:1px solid #123;
+    cursor:pointer; white-space:nowrap;
+  }
+  table.data th:hover{background:var(--hot);}
+  table.data td{padding:3px 6px; border:1px solid #bbb;}
+  table.data tr:nth-child(even) td{background:#eef3fb;}
+  table.data tr:hover td{background:#ffe9b3;}
+  td.rank{text-align:center; font-weight:bold; width:26px;}
+  td.num{text-align:right; font-family:"Courier New", monospace;}
+  td.hot{color:var(--hot); font-weight:bold;}
+  td.cold{color:var(--cold); font-weight:bold;}
+  .medal{font-size:13px;}
+
+  #controls{margin:8px 0; display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
+  #controls input[type=text]{font-family:Verdana, sans-serif; font-size:11px; padding:3px 4px; border:2px inset #888; width:200px;}
+  button.retro{
+    font-family:Verdana, sans-serif; font-size:11px; font-weight:bold; padding:4px 10px;
+    background:linear-gradient(180deg,#f5f5f5,#c9c9c9); border:2px outset #ddd; cursor:pointer;
+  }
+  button.retro:active{border-style:inset;}
+  button.retro.gold{background:linear-gradient(180deg,#fff2b0,var(--gold)); border-color:#e0b400;}
+
+  #sources ul{margin:0; padding-left:16px;}
+  #sources li{margin-bottom:4px;}
+  .src-tag{display:inline-block; font-size:9px; font-weight:bold; padding:1px 4px; border-radius:2px; color:#fff;}
+  .src-SMN{background:#1b6ba0;}
+  .src-INTA{background:#2a8a3e;}
+  .src-OHMC{background:#a05a1b;}
+  .src-Wunderground{background:#7a1ba0;}
+
+  #footer{background:var(--sky-dark); color:#cfe0f5; text-align:center; font-size:10px; padding:10px; margin-top:6px;}
+  #footer a{color:#ffe08a;}
+  .hitcounter-star{color:var(--gold);}
+
+  @media (max-width:640px){
+    #content{display:block;}
+    #sidebar{width:auto; border-right:none; border-bottom:2px solid var(--sky-dark);}
+  }
+</style>
+</head>
+<body>
+<div id="page">
+
+  <div id="banner">
+    <h1>Arge<span class="accent">Clima</span>.net</h1>
+    <div class="tagline">"El portal del clima argentino" &mdash; version EN VIVO (self-hosted)</div>
+  </div>
+
+  <marquee behavior="scroll" scrollamount="4">
+    *** BIENVENIDO A ARGECLIMA.NET *** Esta version pide los datos a tu propio backend *** Si el backend no responde, cae a modo demo automaticamente *** Optimizado para 800x600 ***
+  </marquee>
+
+  <div id="notice">
+    <b>Version "en vivo":</b> esta pagina intenta traer los datos reales desde el backend
+    configurado en <code>API_URL</code> (abajo, al principio del <code>&lt;script&gt;</code>).
+    Si todavia no desplegaste el backend, o la URL esta mal, la pagina cae sola a datos de
+    demostracion y te lo avisa en la barra de abajo &mdash; nunca se rompe. Instrucciones de
+    despliegue en el <code>README.md</code> de la carpeta <code>backend/</code>.
+  </div>
+
+  <div id="statusBar" class="loading">&#8987; Conectando con el backend...</div>
+
+  <div id="navbar">
+    <span>&raquo;</span><a href="#top25">Ranking Top 25</a>
+    <span>&raquo;</span><a href="#todas">Todas las estaciones</a>
+    <span>&raquo;</span><a href="#fuentes">Fuentes de datos</a>
+  </div>
+
+  <div id="content">
+
+    <div id="sidebar">
+      <div class="box">
+        <h3>Menu</h3>
+        <div class="inner">
+          <div id="counter">
+            004821
+            <small>visitantes desde 09/2026</small>
+          </div>
+          <div class="badge-row">
+            <span class="badge">Best viewed<br>800x600</span>
+            <span class="badge">Netscape<br>ready</span>
+            <span class="badge blink" id="liveBadge">CONECTANDO...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3>Resumen del dia</h3>
+        <div class="inner" id="summaryBox"></div>
+      </div>
+
+      <div class="box">
+        <h3>Fuentes</h3>
+        <div class="inner" id="sources">
+          <ul>
+            <li><span class="src-tag src-SMN">SMN</span> Servicio Meteorologico Nacional</li>
+            <li><span class="src-tag src-INTA">INTA</span> Red SIGA - INTA</li>
+            <li><span class="src-tag src-OHMC">OHMC</span> Obs. Hidromet. Cordoba</li>
+            <li><span class="src-tag src-Wunderground">WU</span> Weather Underground</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="main">
+
+      <h2 class="section-title" id="top25">&#128293;&#10052; Ranking Top 25 - Mas Calurosas / Mas Frias</h2>
+
+      <div id="tabs">
+        <button class="tabbtn active" data-tab="hot">&#128293; Top 25 mas calurosas (Tmax)</button>
+        <button class="tabbtn" data-tab="cold">&#10052; Top 25 mas frias (Tmin)</button>
+      </div>
+
+      <div class="tabpanel active" id="panel-hot">
+        <div id="controls">
+          <button class="retro gold" onclick="exportTable('hot','csv')">&#128190; Exportar CSV</button>
+          <button class="retro gold" onclick="exportTable('hot','txt')">&#128196; Exportar TXT</button>
+          <button class="retro" onclick="loadData()">&#128260; Refrescar ahora</button>
+        </div>
+        <table class="data" id="tableHot">
+          <caption>Las 25 estaciones con la temperatura maxima mas alta registrada</caption>
+          <thead>
+            <tr><th data-key="rank">#</th><th data-key="name">Estacion</th><th data-key="province">Provincia</th><th data-key="source">Fuente</th><th data-key="max">Tmax (&deg;C)</th><th data-key="min">Tmin (&deg;C)</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="tabpanel" id="panel-cold">
+        <div id="controls">
+          <button class="retro gold" onclick="exportTable('cold','csv')">&#128190; Exportar CSV</button>
+          <button class="retro gold" onclick="exportTable('cold','txt')">&#128196; Exportar TXT</button>
+          <button class="retro" onclick="loadData()">&#128260; Refrescar ahora</button>
+        </div>
+        <table class="data" id="tableCold">
+          <caption>Las 25 estaciones con la temperatura minima mas baja registrada</caption>
+          <thead>
+            <tr><th data-key="rank">#</th><th data-key="name">Estacion</th><th data-key="province">Provincia</th><th data-key="source">Fuente</th><th data-key="min">Tmin (&deg;C)</th><th data-key="max">Tmax (&deg;C)</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h2 class="section-title" id="todas">&#128203; Todas las estaciones</h2>
+      <div id="controls">
+        <input type="text" id="searchBox" placeholder="Buscar estacion o provincia...">
+        <button class="retro" onclick="renderAll()">Filtrar</button>
+        <button class="retro gold" onclick="exportTable('all','csv')">&#128190; Exportar CSV (todas)</button>
+        <button class="retro gold" onclick="exportTable('all','txt')">&#128196; Exportar TXT (todas)</button>
+      </div>
+      <table class="data" id="tableAll">
+        <caption>Listado completo de estaciones cargadas</caption>
+        <thead>
+          <tr>
+            <th data-key="name">Estacion</th><th data-key="province">Provincia</th><th data-key="source">Fuente</th>
+            <th data-key="max">Tmax (&deg;C)</th><th data-key="min">Tmin (&deg;C)</th><th data-key="amp">Amplitud</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h2 class="section-title" id="fuentes">&#127760; Fuentes de datos</h2>
+      <div class="box"><div class="inner">
+        <ul>
+          <li><b>Servicio Meteorologico Nacional (SMN)</b> &mdash; <a href="https://www.smn.gob.ar/descarga-de-datos" target="_blank" rel="noopener">smn.gob.ar/descarga-de-datos</a></li>
+          <li><b>INTA &mdash; Red SIGA</b> &mdash; <a href="https://siga.inta.gob.ar/#/data" target="_blank" rel="noopener">siga.inta.gob.ar/#/data</a></li>
+          <li><b>OHMC</b> &mdash; <a href="https://meteocordoba.ohmc.com.ar/admin/core/datometeorologico/" target="_blank" rel="noopener">meteocordoba.ohmc.com.ar</a></li>
+          <li><b>Weather Underground</b> &mdash; red de estaciones personales (PWS)</li>
+        </ul>
+      </div></div>
+
+    </div>
+  </div>
+
+  <div id="footer">
+    <span class="hitcounter-star">&#9733;</span> ArgeClima.net &mdash; version en vivo &mdash; <span class="hitcounter-star">&#9733;</span><br>
+    Ultima actualizacion de datos: <span id="lastUpdate">-</span><br>
+    <a href="#top">Volver arriba</a>
+  </div>
+
+</div>
+
+<script>
+// =====================================================================
+// CONFIGURACION: cambiar por la URL real de tu backend desplegado
+// (ver backend/README.md). Ejemplo: "https://argeclima-backend.onrender.com/api/estaciones"
+// =====================================================================
+const API_URL = "https://TU-BACKEND.onrender.com/api/estaciones";
+const AUTO_REFRESH_MINUTES = 10;
+
+// Datos de demostracion, usados SOLO si el backend no responde
+const DEMO_STATIONS = [
+  {name:"Las Lomitas", province:"Formosa", source:"SMN", max:35.2, min:18.4},
+  {name:"Rivadavia", province:"Salta", source:"SMN", max:34.8, min:17.9},
+  {name:"Formosa Aero", province:"Formosa", source:"SMN", max:33.6, min:19.2},
+  {name:"Resistencia Aero", province:"Chaco", source:"SMN", max:33.1, min:18.7},
+  {name:"Pres. Roque Saenz Pena", province:"Chaco", source:"SMN", max:34.0, min:17.5},
+  {name:"Santiago del Estero Aero", province:"Santiago del Estero", source:"SMN", max:33.4, min:16.8},
+  {name:"Corrientes Aero", province:"Corrientes", source:"SMN", max:32.7, min:19.5},
+  {name:"Posadas Aero", province:"Misiones", source:"SMN", max:31.9, min:20.1},
+  {name:"Iguazu Aero", province:"Misiones", source:"SMN", max:31.2, min:21.0},
+  {name:"Oran", province:"Salta", source:"OHMC", max:33.9, min:18.0},
+  {name:"Tartagal", province:"Salta", source:"SMN", max:34.3, min:17.6},
+  {name:"Anatuya", province:"Santiago del Estero", source:"SMN", max:33.0, min:16.2},
+  {name:"La Rioja Aero", province:"La Rioja", source:"SMN", max:32.5, min:15.9},
+  {name:"Catamarca Aero", province:"Catamarca", source:"SMN", max:31.8, min:15.0},
+  {name:"Tucuman Aero", province:"Tucuman", source:"SMN", max:30.6, min:16.4},
+  {name:"Jujuy Aero", province:"Jujuy", source:"SMN", max:28.9, min:12.1},
+  {name:"Salta Aero", province:"Salta", source:"SMN", max:27.4, min:10.8},
+  {name:"San Juan Aero", province:"San Juan", source:"SMN", max:29.7, min:12.5},
+  {name:"Mendoza Aero", province:"Mendoza", source:"SMN", max:26.3, min:9.4},
+  {name:"San Rafael Aero", province:"Mendoza", source:"SMN", max:25.1, min:6.2},
+  {name:"Cordoba Aero", province:"Cordoba", source:"SMN", max:27.8, min:11.3},
+  {name:"Cordoba Observatorio", province:"Cordoba", source:"OHMC", max:28.1, min:11.9},
+  {name:"Villa Maria", province:"Cordoba", source:"OHMC", max:27.5, min:10.7},
+  {name:"Rio Cuarto Aero", province:"Cordoba", source:"SMN", max:26.9, min:9.8},
+  {name:"Rosario Aero", province:"Santa Fe", source:"SMN", max:25.6, min:12.0},
+  {name:"Santa Fe Aero", province:"Santa Fe", source:"SMN", max:25.9, min:13.1},
+  {name:"Parana Aero", province:"Entre Rios", source:"SMN", max:26.4, min:12.8},
+  {name:"Concordia Aero", province:"Entre Rios", source:"SMN", max:27.0, min:13.5},
+  {name:"Buenos Aires Aeroparque", province:"CABA", source:"SMN", max:22.4, min:14.1},
+  {name:"Ezeiza Aero", province:"Buenos Aires", source:"SMN", max:22.9, min:11.6},
+  {name:"La Plata Aero", province:"Buenos Aires", source:"SMN", max:22.0, min:10.9},
+  {name:"Pergamino", province:"Buenos Aires", source:"INTA", max:24.5, min:8.7},
+  {name:"Junin Aero", province:"Buenos Aires", source:"SMN", max:23.8, min:7.9},
+  {name:"Nueve de Julio", province:"Buenos Aires", source:"INTA", max:23.1, min:7.2},
+  {name:"Mar del Plata Aero", province:"Buenos Aires", source:"SMN", max:18.3, min:9.5},
+  {name:"Bahia Blanca Aero", province:"Buenos Aires", source:"SMN", max:20.7, min:6.8},
+  {name:"Santa Rosa Aero", province:"La Pampa", source:"SMN", max:21.9, min:4.3},
+  {name:"Victorica", province:"La Pampa", source:"SMN", max:22.6, min:3.1},
+  {name:"General Pico", province:"La Pampa", source:"INTA", max:22.0, min:4.0},
+  {name:"Neuquen Aero", province:"Neuquen", source:"SMN", max:20.5, min:3.8},
+  {name:"Zapala Aero", province:"Neuquen", source:"SMN", max:17.2, min:-1.4},
+  {name:"Chapelco Aero", province:"Neuquen", source:"SMN", max:15.8, min:-2.9},
+  {name:"Bariloche Aero", province:"Rio Negro", source:"SMN", max:14.6, min:-3.5},
+  {name:"Esquel Aero", province:"Chubut", source:"SMN", max:13.9, min:-4.8},
+  {name:"Maquinchao", province:"Rio Negro", source:"SMN", max:13.1, min:-6.2},
+  {name:"Comodoro Rivadavia Aero", province:"Chubut", source:"SMN", max:16.4, min:2.1},
+  {name:"Trelew Aero", province:"Chubut", source:"SMN", max:17.8, min:3.6},
+  {name:"Puerto Madryn Aero", province:"Chubut", source:"SMN", max:17.0, min:4.9},
+  {name:"Rawson Aero", province:"Chubut", source:"SMN", max:17.5, min:4.2},
+  {name:"Perito Moreno Aero", province:"Santa Cruz", source:"SMN", max:12.3, min:-6.8},
+  {name:"Los Antiguos", province:"Santa Cruz", source:"INTA", max:11.9, min:-7.4},
+  {name:"Gobernador Gregores", province:"Santa Cruz", source:"SMN", max:10.8, min:-8.1},
+  {name:"Puerto Deseado Aero", province:"Santa Cruz", source:"SMN", max:13.5, min:1.4},
+  {name:"Rio Gallegos Aero", province:"Santa Cruz", source:"SMN", max:9.7, min:-5.9},
+  {name:"El Calafate Aero", province:"Santa Cruz", source:"SMN", max:8.4, min:-9.2},
+  {name:"Rio Turbio Aero", province:"Santa Cruz", source:"SMN", max:6.1, min:-11.5},
+  {name:"Rio Grande Aero", province:"Tierra del Fuego", source:"SMN", max:6.8, min:-3.1},
+  {name:"Ushuaia Aero", province:"Tierra del Fuego", source:"SMN", max:5.9, min:-4.6},
+  {name:"Base Marambio", province:"Antartida Argentina", source:"SMN", max:-8.3, min:-18.7},
+  {name:"Base Belgrano II", province:"Antartida Argentina", source:"SMN", max:-22.4, min:-34.1},
+  {name:"La Quiaca Obs.", province:"Jujuy", source:"SMN", max:16.9, min:-3.2},
+  {name:"Malargue Aero", province:"Mendoza", source:"SMN", max:19.4, min:-1.8}
+];
+
+let STATIONS = [];
+let dataMode = "loading"; // "live" | "demo" | "loading"
+let currentSort = {key:"max", dir:"desc"};
+
+function withAmp(list){
+  return list.map(s => ({...s, amp:+(s.max - s.min).toFixed(1)}));
+}
+
+function fmt(n){ return (n>0?"+":"") + n.toFixed(1); }
+
+function medal(i){
+  if(i===0) return "&#129351;";
+  if(i===1) return "&#129352;";
+  if(i===2) return "&#129353;";
+  return "";
+}
+
+function setStatus(mode, text){
+  const bar = document.getElementById("statusBar");
+  bar.className = mode;
+  bar.textContent = text;
+  const liveBadge = document.getElementById("liveBadge");
+  liveBadge.classList.remove("on","off");
+  if(mode === "live"){ liveBadge.textContent = "EN VIVO"; liveBadge.classList.add("on"); }
+  else if(mode === "demo"){ liveBadge.textContent = "MODO DEMO"; liveBadge.classList.add("off"); }
+  else { liveBadge.textContent = "CONECTANDO..."; }
+}
+
+async function loadData(){
+  setStatus("loading", "\u23F3 Conectando con el backend...");
+  try{
+    if(!API_URL || API_URL.includes("TU-BACKEND")){
+      throw new Error("API_URL no configurada todavia");
+    }
+    const res = await fetch(API_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if(!data.stations || !data.stations.length) throw new Error("El backend respondio sin estaciones");
+    STATIONS = withAmp(data.stations);
+    dataMode = "live";
+    const when = data.generated_at ? new Date(data.generated_at).toLocaleString("es-AR") : new Date().toLocaleString("es-AR");
+    document.getElementById("lastUpdate").textContent = when + " (en vivo)";
+    setStatus("live", "\u2705 Mostrando datos EN VIVO de tu backend \u2014 " + STATIONS.length + " estaciones");
+  } catch(err){
+    STATIONS = withAmp(DEMO_STATIONS);
+    dataMode = "demo";
+    document.getElementById("lastUpdate").textContent = new Date().toLocaleString("es-AR") + " (demo)";
+    setStatus("demo", "\u26A0 No se pudo conectar al backend (" + err.message + "). Mostrando datos de DEMOSTRACION.");
+  }
+  renderHot(); renderCold(); renderAll(); renderSummary();
+}
+
+function renderHot(){
+  const sorted = [...STATIONS].sort((a,b)=>b.max-a.max).slice(0,25);
+  document.querySelector("#tableHot tbody").innerHTML = sorted.map((s,i)=>`
+    <tr>
+      <td class="rank">${i+1} <span class="medal">${medal(i)}</span></td>
+      <td>${s.name}</td><td>${s.province}</td>
+      <td><span class="src-tag src-${s.source}">${s.source}</span></td>
+      <td class="num hot">${fmt(s.max)}</td><td class="num">${fmt(s.min)}</td>
+    </tr>`).join("");
+}
+
+function renderCold(){
+  const sorted = [...STATIONS].sort((a,b)=>a.min-b.min).slice(0,25);
+  document.querySelector("#tableCold tbody").innerHTML = sorted.map((s,i)=>`
+    <tr>
+      <td class="rank">${i+1} <span class="medal">${medal(i)}</span></td>
+      <td>${s.name}</td><td>${s.province}</td>
+      <td><span class="src-tag src-${s.source}">${s.source}</span></td>
+      <td class="num cold">${fmt(s.min)}</td><td class="num">${fmt(s.max)}</td>
+    </tr>`).join("");
+}
+
+function renderAll(){
+  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+  let rows = STATIONS.filter(s => !q || s.name.toLowerCase().includes(q) || s.province.toLowerCase().includes(q));
+  rows.sort((a,b)=>{
+    const k = currentSort.key;
+    let va=a[k], vb=b[k];
+    if(typeof va==="string"){ va=va.toLowerCase(); vb=vb.toLowerCase(); }
+    if(va<vb) return currentSort.dir==="asc"?-1:1;
+    if(va>vb) return currentSort.dir==="asc"?1:-1;
+    return 0;
+  });
+  document.querySelector("#tableAll tbody").innerHTML = rows.map(s=>`
+    <tr>
+      <td>${s.name}</td><td>${s.province}</td>
+      <td><span class="src-tag src-${s.source}">${s.source}</span></td>
+      <td class="num hot">${fmt(s.max)}</td><td class="num cold">${fmt(s.min)}</td>
+      <td class="num">${s.amp}</td>
+    </tr>`).join("");
+}
+
+function renderSummary(){
+  if(!STATIONS.length){ document.getElementById("summaryBox").innerHTML = "Sin datos."; return; }
+  const hottest = [...STATIONS].sort((a,b)=>b.max-a.max)[0];
+  const coldest = [...STATIONS].sort((a,b)=>a.min-b.min)[0];
+  document.getElementById("summaryBox").innerHTML = `
+    <p style="margin:2px 0;"><b>Max. del pais:</b><br><span style="color:var(--hot);font-weight:bold;">${fmt(hottest.max)}&deg;C</span> &mdash; ${hottest.name} (${hottest.province})</p>
+    <p style="margin:2px 0;"><b>Min. del pais:</b><br><span style="color:var(--cold);font-weight:bold;">${fmt(coldest.min)}&deg;C</span> &mdash; ${coldest.name} (${coldest.province})</p>
+    <p style="margin:2px 0;"><b>Estaciones cargadas:</b><br>${STATIONS.length} (${dataMode==="live"?"en vivo":"demo"})</p>
+  `;
+}
+
+document.querySelectorAll(".tabbtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tabpanel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.querySelectorAll("#tableAll th").forEach(th=>{
+  th.addEventListener("click", ()=>{
+    const key = th.dataset.key;
+    if(currentSort.key===key){ currentSort.dir = currentSort.dir==="asc"?"desc":"asc"; }
+    else { currentSort = {key, dir:"desc"}; }
+    renderAll();
+  });
+});
+document.getElementById("searchBox").addEventListener("keyup", renderAll);
+
+function buildRows(scope){
+  if(scope==="hot") return [...STATIONS].sort((a,b)=>b.max-a.max).slice(0,25);
+  if(scope==="cold") return [...STATIONS].sort((a,b)=>a.min-b.min).slice(0,25);
+  return [...STATIONS].sort((a,b)=>b.max-a.max);
+}
+
+function exportTable(scope, type){
+  const rows = buildRows(scope);
+  const headers = ["Estacion","Provincia","Fuente","TempMax_C","TempMin_C","Amplitud_C"];
+  const lines = rows.map(s => [s.name, s.province, s.source, s.max.toFixed(1), s.min.toFixed(1), s.amp.toFixed(1)]);
+  let content, mime, ext;
+  if(type==="csv"){
+    content = headers.join(",") + "\n" + lines.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
+    mime = "text/csv"; ext="csv";
+  } else {
+    const widths = headers.map((h,i)=>Math.max(h.length, ...lines.map(r=>String(r[i]).length)));
+    const padRow = r => r.map((v,i)=>String(v).padEnd(widths[i])).join(" | ");
+    content = padRow(headers) + "\n" + widths.map(w=>"-".repeat(w)).join("-+-") + "\n" + lines.map(padRow).join("\n");
+    mime = "text/plain"; ext="txt";
+  }
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `argeclima_${scope}_${dataMode}_${new Date().toISOString().slice(0,10)}.${ext}`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+loadData();
+setInterval(loadData, AUTO_REFRESH_MINUTES * 60 * 1000);
+</script>
+</body>
+</html>
