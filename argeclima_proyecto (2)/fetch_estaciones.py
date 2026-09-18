@@ -127,7 +127,7 @@ def fetch_inta_siga_placeholder():
 
 # ---------------------------------------------------------------------------
 def main():
-    api_key = os.environ.get("53b89abc03d14d7ab89abc03d1dd7ab6")
+    api_key = os.environ.get("WUNDERGROUND_API_KEY=53b89abc03d14d7ab89abc03d1dd7ab6")
     all_stations = []
 
     if api_key:
